@@ -1,0 +1,24 @@
+version: '3.5
+volumes:
+    dc-vl:
+services:
+    docker-tomcat:
+        image: tomcat
+        ports:
+            - 8080:8080
+ #       links:
+ #           - db:mysql
+        volumes:
+          - ./target/NerdySoftTestProject-1.0-SNAPSHOT.war:/usr/local/tomcat/webapps/NerdySoftTestProject-1.0-SNAPSHOT.war
+          
+    docker-mysql:
+        image: mysql
+        volumes:
+            - dc-vl:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=rybuf2012
+            - MYSQL_DATABASE=NerdySoft
+            - MYSQL_USER=root
+            - MYSQL_PASSWORD=rybuf2012
+        ports:
+            - 3306:3306

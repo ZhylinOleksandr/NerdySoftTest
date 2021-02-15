@@ -1,6 +1,4 @@
 validateRoom$Point.class
 validateRoom$Wall.class
-com\example\NerdySoftTestProject\HelloResource.class
-com\example\NerdySoftTestProject\HelloServlet.class
-com\example\NerdySoftTestProject\HelloApplication.class
 validateRoom.class
+ManageRooms.class

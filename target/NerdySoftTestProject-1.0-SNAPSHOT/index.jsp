@@ -1,6 +1,4 @@
 
-<%@ page import="java.util.Stack" %>
-<%@ page import="java.awt.*" %>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@page import="java.sql.DriverManager"%>
@@ -73,8 +71,6 @@ Room validation process encountered some errors:<br>
         var canvas = document.getElementById('roomCanvas')
         var ctx = canvas.getContext('2d');
         var polygon = "<%=request.getAttribute("stringRoomPoints")%>".split(" ");
-
-        //var polygon = ["1","1","1","2","0","2","0","3","2","3","2","1"];
         ctx.beginPath();
         ctx.moveTo(parseInt(polygon[0]*20,10), parseInt(polygon[1]*20,10));
         for(item = 2; item < polygon.length-1; item += 2 ){

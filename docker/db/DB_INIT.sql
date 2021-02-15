@@ -1,0 +1,12 @@
+CREATE TABLE Rooms (
+  RoomID int 
+  Layout VARCHAR(255) DEFAULT NULL,
+  PRIMARY KEY (RoomID)
+) ENGINE=INNODB DEFAULT CHARSET=UTF8MB4;
+
+
+INSERT INTO Rooms (RoomID, Layout) VALUES (1,"1 1 1 2 2 2 2 1");
+INSERT INTO Rooms (RoomID, Layout) VALUES (2,"1 1 2 2");
+INSERT INTO Rooms (RoomID, Layout) VALUES (3,"1 1 1 2 0 2 0 1");
+INSERT INTO Rooms (RoomID, Layout) VALUES (4,"1 1 1 2 0 2 0 3 2 3 2 1");
+INSERT INTO Rooms (RoomID, Layout) VALUES (5,"1 1 1 5 0 5 0 4 3 4 3 1");

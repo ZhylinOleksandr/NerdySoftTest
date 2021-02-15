@@ -1,12 +1,8 @@
 import javax.servlet.*;
 import javax.servlet.http.*;
 import javax.servlet.annotation.*;
-import java.awt.*;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Stack;
 
 @WebServlet(name = "validateRoom", value = "/validateRoom")
@@ -57,11 +53,6 @@ public class validateRoom extends HttpServlet {
             return this.startPoint;
         }
 
-        public  Boolean IsStartPoint(Point X)
-        {
-            return (X.equals(this.GetStartPoint()));
-        }
-
 
         //That part was needed for Ottmann-Bentley algorithm, but i decided it be an overkill
         @Override
@@ -85,27 +76,18 @@ public class validateRoom extends HttpServlet {
 
 
         ArrayList<Point> currentRoom = new ArrayList<Point>();
-        /*String Sroom = request.getParameter("room");
-        Sroom.replaceAll("[^\\d.]", "");*/
-
 
             boolean inputCorrectness = true;
 
-            String[] source;
+            String[] source; //either we get data from user or from database
 
         if (request.getParameter("ShowRoom")!=null) source = ((String)request.getAttribute("ShowRoomByID")).split(" ");
             else source= request.getParameter("room").split(",");
 
             String[] room = source;
-        /*
 
-        if (request.getParameter("ShowRoom")!=null)
-        {
-            layoutSouce="ShowRoomByID";
-            splitter = " ";
-        }
-        String[] room = request.getParameter(layoutSouce).split(splitter);*/
 
+            //Empty line will be considered as invalid room. But i'll leave example here
             if (room.length == 0) // let's assign some simple training example to empty line
             {
 
@@ -113,10 +95,11 @@ public class validateRoom extends HttpServlet {
             }
 
 
+            //Here we transform user input into needed form of data
             try {
                 for (int i = 0; i < room.length; i++) {
                     room[i] = room[i].replaceAll("[^0-9]", "");
-                    if (room[i] != "") {
+                    if (room[i].equals("")) {
                         if (i % 2 == 0) {
                             currentRoom.add(new Point(Integer.parseInt(room[i]), 0));
                         } else currentRoom.get(currentRoom.size() - 1).Y = Integer.parseInt(room[i]);
@@ -129,18 +112,11 @@ public class validateRoom extends HttpServlet {
                 inputCorrectness=false;
             }
 
-            //example set
-           /* currentRoom.add(new Point(1,1));
-            currentRoom.add(new Point(1,2));
-            currentRoom.add(new Point(0,2));
-            currentRoom.add(new Point(0,3));
-            currentRoom.add(new Point(2,3));
-            currentRoom.add(new Point(2,1));*/
-
 
         String responseToClient = "";
         Stack<String> result = new Stack<String>();
 
+        //In case of incorrect data points, error will be shown
         if (inputCorrectness) {
             result = VerifyRoom(currentRoom);
 
@@ -153,7 +129,7 @@ public class validateRoom extends HttpServlet {
                 responseToClient += "]";
 
             } else for (String s : result) {
-                responseToClient += result;
+                responseToClient += s;//result
             }
         }
         else
@@ -161,20 +137,11 @@ public class validateRoom extends HttpServlet {
             result.push(GetErrorDescription(CoordinateTypeError));
             responseToClient+=(GetErrorDescription(CoordinateTypeError));
         }
-            ;
 
-            //response.setStatus(HttpServletResponse.SC_OK);
-            //response.getWriter().write(responseToClient);
-            //response.getWriter().flush();
 
-        /*PrintWriter writer = response.getWriter();
-        for (String s: room)
-        writer.println(s+". ");
-        writer.close();*/
 
             //Here to correctly pass variables between pages, and also resize canvas coordinates to look a bit better
             String Sroom = "";
-            // for (String s : ResizeRoom(currentRoom,1,1))         scalation if off, fo now
             for (String s : room)
                 Sroom += s + " ";
 
@@ -184,6 +151,7 @@ public class validateRoom extends HttpServlet {
             request.setAttribute("stringRoomPoints", Sroom);
             request.setAttribute("roomPoints", room);
 
+            // In case of wrongly built room layout we need explanation of what is wrong. For valid rooms pass correct data
             if (result.size()==0) {
                 request.setAttribute("Errors", "");
             }
@@ -202,15 +170,14 @@ public class validateRoom extends HttpServlet {
     {
 
         Stack<String> result = new Stack<>();
-        int degreeCheck=0;
-        int CornerNumber=1; //It's here for purpose of correcting vague input. Starts from 1 to form last corner with starting point
+
         ArrayList<Wall> layout = new ArrayList<Wall>(); //Here to keep initial input unmodified, and for intersection check
 
 
         //Note: some validations can be processed together, and that will increase program execution speed.
         // However, for sake of simplicity, testing and for sake of common logic, all validations made as separate as possible to do it without duplicating operations.
 
-        //To have 4 corners room must have at least 4 not-intersected walls. Combined with no-diagonal validation, any room with more than 4 walls and no diagonal walls will be correct.
+        //To have 4 corners room must have at least 4 not-intersected walls. Combined with no-diagonal validation, any room with more than 3 walls and no diagonal walls will be correct.
         if (input.size()<4) result.push(GetErrorDescription(FourCornersError));
 
         //Next is checking walls for diagonality. And creating forming layout, for later purposes
@@ -250,8 +217,6 @@ public class validateRoom extends HttpServlet {
                 }
                 else result.push(GetErrorDescription(IntersectedWallsError)); //This is a point, not a wall, so i'm unsure what error it is, but it's not correct input for sure
 
-            /*if (layout.size()>1 && layout.get(i-2).isHorizontal!=layout.get(i-1).isHorizontal)
-            CornerNumber++;*/
             //else two horizontal walls in a row. It's not incorrect, i guess? Just weird
         }
 
@@ -262,9 +227,6 @@ public class validateRoom extends HttpServlet {
 
         if (checkRoomIntersection(layout)) result.push(GetErrorDescription(IntersectedWallsError));
 
-        //Just a final double-check. Resulting room must be a regular polygon.
-        //if ((degreeCheck!=180*(CornerNumber-2)) && (result.isEmpty())) result.push(GetErrorDescription(UnspecifiedError));
-
         //if (result.size()==0) result.add("Room validated. No errors found");
         return result;
     }
@@ -273,7 +235,7 @@ public class validateRoom extends HttpServlet {
 
 
 
-    //it checks orientation of whole polygon. It could be done via intersection part of algorithm, but i tried to do all check as separatly as possible
+    //it checks orientation of whole polygon. It could be done via intersection part of algorithm, but i tried to do all check as separately as possible
     public int CheckBuildingOrder (ArrayList<Point> input)
     {
         //Area of polygon. This is not needed for now, we need just a sign, but it's no real harm to keep it
@@ -288,18 +250,6 @@ public class validateRoom extends HttpServlet {
 
     public boolean checkRoomIntersection (ArrayList<Wall> layout)
     {
-        /*
-        // by now, every wall is sorted in a way, that starting point X coordinate is less that end point X
-        Collections.sort(layout, new Comparator() {
-
-            public int compare(Object o1, Object o2) {
-                Wall x1=((Wall) o1);
-                Wall x2=((Wall) o2);
-                return  x1.compareTo(x2);
-            }
-        });
-        //We sort it by X coordinate of startPoint, and every wall start point X < wall end point X
-        */
 
         //This can be done by Ottmann-Bentley algorithm, but that seems like an overkill, and code already bloated enough. So i'll use O(n^2) solution, that is more transparent and easier to debug
         for (int i=0;i< layout.size();i++)
@@ -338,7 +288,7 @@ public class validateRoom extends HttpServlet {
 
         // General case
         //tldr: intersections appear only if one line  have different orientations for both point of other line, and similar goes for second line
-        //HOVEWER we always have intersections on vertexes, and we must ignore those, thus second if, that discard cases when intersection only happens at the ends of both lines
+        //HOWEvER we always have intersections on vertexes, and we must ignore those, thus second if, that discard cases when intersection only happens at the ends of both lines
         if (o1 != o2 && o3 != o4) //Here we detect ALL intersections
             if (Math.abs(o1)+Math.abs(o2)+Math.abs(o3)+Math.abs(o4)>2) //Here we discard intersections on adjusted vertexes
             return true;
@@ -346,16 +296,6 @@ public class validateRoom extends HttpServlet {
 
 
         return false; // Doesn't fall in any of the above cases
-    }
-
-    //This is here in case two walls will be both horizontal, but not self-intersected.
-    static boolean pointsInLine(Point p, Point q, Point r)
-    {
-        if (q.X <= Math.max(p.X, r.X) && q.X >= Math.min(p.X, r.X) &&
-                q.Y <= Math.max(p.Y, r.Y) && q.Y >= Math.min(p.Y, r.Y))
-            return true;
-
-        return false;
     }
 
     public String GetErrorDescription (int errorType)
@@ -381,41 +321,8 @@ public class validateRoom extends HttpServlet {
             case (UnspecifiedError):
                 result="Something wrong, i can feel it... ";
                 break;
-            /*default:
-                result="Room validated. No errors found";
-                break;*/
-
         }
         return result;
     }
-
-    public String[] ResizeRoom(ArrayList<Point> points, double xmodifier, double ymodifier)
-    {
-        ArrayList<String> result = new ArrayList<String>();
-        ArrayList<Double> xs = new ArrayList<Double>();
-        ArrayList<Double> ys = new ArrayList<Double>();
-
-        for (Point p : points)
-        {
-            xs.add((double)p.X);
-            ys.add((double)p.Y);
-        }
-
-        double x_center = 0.5 * Collections.min(xs) +0.5 * Collections.max(xs);
-        double y_center = 0.5 * Collections.min(ys) +0.5 * Collections.max(ys);
-
-        for (int i=0;i<xs.size();i++) {
-            // xs.set(i, (xs.get(i) - x_center) * (1 - xmodifier) + x_center) ;
-            //ys.set(i, (ys.get(i) - y_center) * (1 - ymodifier) + y_center) ;
-            xs.set(i, (xs.get(i) - x_center) * ( xmodifier) + x_center) ;
-            ys.set(i, (ys.get(i) - y_center) * ( ymodifier) + y_center) ;
-
-            result.add(Integer.toString((int)Math.round(xs.get(i))));
-            result.add(Integer.toString((int)Math.round(ys.get(i))));
-        }
-
-        return result.toArray(new String[0]);
-    }
-
 
 }
