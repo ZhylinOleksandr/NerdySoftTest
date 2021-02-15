@@ -1,0 +1,11 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="NerdySoftTestProject:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/NerdySoftTestProject_jar</output-path>
+    <root id="archive" name="NerdySoftTestProject.jar">
+      <element id="module-output" name="NerdySoftTestProject" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/mysql/mysql-connector-java/8.0.21/mysql-connector-java-8.0.21.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/google/protobuf/protobuf-java/3.11.4/protobuf-java-3.11.4.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/javax/servlet/jstl/1.2/jstl-1.2.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
